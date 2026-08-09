@@ -5,6 +5,7 @@ namespace Tests\Feature\Ownership;
 use App\Domain\Exceptions\OwnershipViolationException;
 use App\Domain\Services\ObligationAllocationService;
 use App\Domain\Services\OwnershipGuard;
+use App\Domain\Services\PaymentObligationService;
 use App\Domain\Services\RefundService;
 use App\Domain\Services\ReversalService;
 use App\Domain\Services\TransactionService;
@@ -15,6 +16,7 @@ use App\Models\LedgerEntry;
 use App\Models\ObligationAllocation;
 use App\Models\PaymentObligation;
 use App\Models\ReconciliationMatch;
+use App\Models\RecurringPaymentTemplate;
 use App\Models\StatementImport;
 use App\Models\StatementTransaction;
 use App\Models\Transaction;
@@ -39,6 +41,8 @@ class TenantIsolationTest extends TestCase
 
     private ObligationAllocationService $allocations;
 
+    private PaymentObligationService $obligations;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -49,6 +53,7 @@ class TenantIsolationTest extends TestCase
         $this->refunds = new RefundService($this->guard);
         $this->reversals = new ReversalService($this->guard);
         $this->allocations = new ObligationAllocationService($this->guard);
+        $this->obligations = new PaymentObligationService($this->guard);
     }
 
     public function test_user_cannot_record_an_expense_against_another_users_account(): void
@@ -300,5 +305,53 @@ class TenantIsolationTest extends TestCase
         $this->expectException(OwnershipViolationException::class);
 
         $this->guard->assertAccountOwnership($ownerAccount, $attacker->id);
+    }
+
+    public function test_user_cannot_create_a_recurring_obligation_occurrence_from_another_users_template(): void
+    {
+        $owner = User::factory()->create();
+        $attacker = User::factory()->create();
+        $ownerCategory = Category::factory()->for($owner)->create();
+        $ownerTemplate = RecurringPaymentTemplate::factory()->for($owner)->create([
+            'category_id' => $ownerCategory->id,
+        ]);
+
+        $this->expectException(OwnershipViolationException::class);
+
+        $this->obligations->createRecurringOccurrence(
+            $attacker,
+            $ownerTemplate,
+            '2026-02',
+            '2026-02-01',
+            '2026-02-28',
+            '2026-02-05',
+            '1000.00',
+        );
+    }
+
+    public function test_user_cannot_remove_another_users_allocation(): void
+    {
+        $owner = User::factory()->create();
+        $attacker = User::factory()->create();
+        $ownerAccount = Account::factory()->for($owner)->create(['opening_balance' => '5000.00']);
+        $ownerCategory = Category::factory()->for($owner)->create();
+
+        $ownerObligation = PaymentObligation::create([
+            'user_id' => $owner->id,
+            'idempotency_key' => 'owner-removal-obligation',
+            'category_id' => $ownerCategory->id,
+            'period_start' => '2026-01-01',
+            'period_end' => '2026-01-31',
+            'due_date' => '2026-01-15',
+            'planned_amount' => '1000.00',
+            'status' => 'PENDING',
+        ]);
+
+        $ownerExpense = $this->transactions->recordExpense($owner, $ownerAccount, '1000.00', '2026-01-05', 'Owner expense');
+        $ownerAllocation = $this->allocations->allocate($owner, $ownerObligation, $ownerExpense, '1000.00');
+
+        $this->expectException(OwnershipViolationException::class);
+
+        $this->allocations->removeAllocation($attacker, $ownerAllocation);
     }
 }

@@ -80,9 +80,7 @@ class ObligationAllocationService
 
     public function removeAllocation(User $user, ObligationAllocation $allocation): void
     {
-        if ($allocation->user_id !== $user->id) {
-            throw new AllocationException('Allocation does not belong to the authenticated user.');
-        }
+        $this->ownership->assertObligationAllocationOwnership($allocation, $user->id);
 
         DB::transaction(function () use ($user, $allocation) {
             $locked = PaymentObligation::query()->lockForUpdate()->findOrFail($allocation->payment_obligation_id);

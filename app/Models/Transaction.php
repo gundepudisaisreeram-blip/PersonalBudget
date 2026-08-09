@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Domain\Exceptions\ImmutableRecordException;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,17 @@ class Transaction extends Model
     use HasFactory;
 
     public const TYPES_ELIGIBLE_FOR_ALLOCATION = ['EXPENSE', 'TRANSFER'];
+
+    protected static function booted(): void
+    {
+        static::updating(function (self $transaction) {
+            throw new ImmutableRecordException('A posted transaction cannot be modified. Use a Refund, Reversal, or Adjustment instead.');
+        });
+
+        static::deleting(function (self $transaction) {
+            throw new ImmutableRecordException('A posted transaction cannot be deleted. Use a Refund, Reversal, or Adjustment instead.');
+        });
+    }
 
     protected function casts(): array
     {

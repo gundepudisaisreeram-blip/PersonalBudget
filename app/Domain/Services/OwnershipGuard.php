@@ -5,6 +5,7 @@ namespace App\Domain\Services;
 use App\Domain\Exceptions\OwnershipViolationException;
 use App\Models\Account;
 use App\Models\Category;
+use App\Models\ObligationAllocation;
 use App\Models\PaymentObligation;
 use App\Models\RecurringPaymentTemplate;
 use App\Models\Transaction;
@@ -54,6 +55,13 @@ class OwnershipGuard
     {
         if ($template->user_id !== $userId) {
             throw new OwnershipViolationException('Recurring payment template does not belong to the authenticated user.');
+        }
+    }
+
+    public function assertObligationAllocationOwnership(ObligationAllocation $allocation, int $userId): void
+    {
+        if ($allocation->user_id !== $userId) {
+            throw new OwnershipViolationException('Obligation allocation does not belong to the authenticated user.');
         }
     }
 }
