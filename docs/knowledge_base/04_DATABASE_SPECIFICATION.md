@@ -2,9 +2,13 @@
 
 ## Status
 
-Version: 1.5 FINAL
+Version: 1.6 FINAL
 Status: APPROVED DATABASE BASELINE (FROZEN)  
 Purpose: Define the logical relational model and strict data invariants. Exact migration syntax belongs to implementation.
+
+### v1.6 amendment (2026-08-09)
+
+Reconciles this document's field lists with the tenant-isolation columns required by `09_ERD_AND_MIGRATION_DESIGN.md` v1.3 §2.3 ("Composite foreign keys are mandatory for financial execution relationships"). `09` requires a `user_id` column on `ledger_entries`, `obligation_allocations`, `reconciliation_matches`, `statement_transactions`, and `account_reconciliations` to support composite tenant foreign keys; this column was implicit in `09`'s physical design but missing from this document's logical field lists. No entity, transaction type, relationship, or financial formula is changed. See `08_CHANGELOG.md` for the full change record.
 
 ## 1. Database Principles
 
@@ -84,7 +88,7 @@ Fields:
 - frequency
 - due_rule
 - category_id
-- default_account_id
+- default_account_id nullable
 - is_mandatory
 - starts_on
 - ends_on nullable
@@ -167,21 +171,25 @@ Account-level financial movements.
 
 Fields:
 - id
+- user_id
 - transaction_id
 - account_id
 - direction: `INFLOW` / `OUTFLOW`
 - amount
 - created_at
+- updated_at
 
 **Invariants:**
 - **Magnitude:** `amount` MUST be strictly > 0. The polarity of the movement is carried entirely by the `direction`.
 - **Mathematical Effect:** Asset + INFLOW = Balance Increases. Asset + OUTFLOW = Balance Decreases. Liability + INFLOW = Balance Decreases (Debt reduced). Liability + OUTFLOW = Balance Increases (Debt grows).
+- **Tenant isolation:** `user_id` is a denormalized column required to support the composite tenant foreign keys `(user_id, transaction_id) → transactions(user_id, id)` and `(user_id, account_id) → accounts(user_id, id)` defined in `09_ERD_AND_MIGRATION_DESIGN.md`.
 
 ### obligation_allocations
 Many-to-many bridge between actual transactions and planned obligations.
 
 Fields:
 - id
+- user_id
 - payment_obligation_id
 - transaction_id
 - allocated_amount
@@ -192,6 +200,7 @@ Fields:
 - `allocated_amount` > 0
 - **Eligibility:** Only actual transactions representing fulfillment of an obligation may be allocated. `REFUND`, `REVERSAL`, and `ADJUSTMENT` transactions cannot directly fulfill an obligation.
 - **Concurrency:** Aggregate limits (sum of allocations <= planned amount) cannot be reliably enforced by standard database constraints. Implementation MUST use application-level logic wrapped in database transactions with row-level pessimistic locking (`FOR UPDATE`) to prevent race conditions.
+- **Tenant isolation:** `user_id` is a denormalized column required to support the composite tenant foreign keys `(user_id, payment_obligation_id) → payment_obligations(user_id, id)` and `(user_id, transaction_id) → transactions(user_id, id)` defined in `09_ERD_AND_MIGRATION_DESIGN.md`.
 
 ### statement_imports
 Fields:
@@ -219,6 +228,7 @@ Fields:
 ### statement_transactions
 Fields:
 - id
+- user_id
 - statement_import_id
 - transaction_date
 - value_date nullable
@@ -241,10 +251,12 @@ Fields:
 **Invariants:** 
 - `normalized_amount` and `direction` are the canonical source of financial truth for the parser. Original overlapping formats (debit/credit arrays or text) are preserved strictly within the `raw_data` JSON for auditing/debugging.
 - `normalized_hash` is a matching signal used for candidate detection across statements. It is NOT globally unique, as legitimate identical transactions can occur.
+- **Tenant isolation:** `user_id` is required to support `UNIQUE(user_id, id)`, which `09_ERD_AND_MIGRATION_DESIGN.md` requires as the referenced side of the `reconciliation_matches` composite tenant foreign key.
 
 ### reconciliation_matches
 Fields:
 - id
+- user_id
 - statement_transaction_id
 - transaction_id
 - match_type
@@ -258,10 +270,12 @@ Fields:
 - Both `statement_transaction_id` and `transaction_id` are MANDATORY. 
 - This table represents ONLY Statement Transaction (STAGED) to Actual Transaction (ACTUAL) mapping. 
 - **Cardinality:** `UNIQUE(statement_transaction_id)` ensures a staged record matches exactly one actual ledger event. `transaction_id` MUST NOT be unique, permitting overlapping bank statements to correctly link to the same underlying actual transaction.
+- **Tenant isolation:** `user_id` is a denormalized column required to support the composite tenant foreign keys `(user_id, statement_transaction_id) → statement_transactions(user_id, id)` and `(user_id, transaction_id) → transactions(user_id, id)` defined in `09_ERD_AND_MIGRATION_DESIGN.md`.
 
 ### account_reconciliations
 Fields:
 - id
+- user_id
 - account_id
 - statement_import_id nullable
 - reconciliation_date
@@ -310,8 +324,14 @@ User
 ├── Payment Obligations
 ├── Budgets
 ├── Transactions
+├── Ledger Entries
+├── Obligation Allocations
 ├── Statement Imports
-└── Audit Logs
+├── Statement Transactions
+├── Reconciliation Matches
+├── Account Reconciliations
+├── Audit Logs
+└── Settings
 
 Account
 └── Ledger Entries
