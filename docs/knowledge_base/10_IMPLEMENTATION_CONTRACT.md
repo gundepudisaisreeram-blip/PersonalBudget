@@ -1175,3 +1175,117 @@ NO-GO
 ```
 
 followed by the findings and exact proposed corrections.
+
+Every development phase MUST have a corresponding version-controlled
+Phase Decision Package before implementation begins.
+
+The implementation agent MUST:
+
+1. Read the frozen Knowledge Base.
+2. Inspect the current repository/codebase.
+3. Create or update the phase-specific Decision Package Markdown file.
+4. Stop implementation completely.
+5. Submit the Decision Package for independent external review.
+6. Resolve only explicitly identified findings.
+7. Obtain an external GO decision.
+8. Implement strictly according to the approved Decision Package.
+9. Produce an implementation report.
+10. Stop for independent source-code adversarial review.
+11. Only after final GO may the phase be committed.
+
+The Decision Package is the contract between planning and implementation.
+
+No implementation code may be written before the Decision Package
+receives external approval.
+
+If implementation discovers a contradiction between the approved
+Decision Package, Knowledge Base, or existing certified architecture:
+
+STOP.
+
+Do not silently reinterpret the requirement.
+
+Update the Decision Package only after the contradiction has been
+reviewed and explicitly resolved.
+
+Every material change to an approved Decision Package MUST be recorded
+in the document itself and in 08_CHANGELOG.md where appropriate.
+
+The approved Decision Package becomes frozen for that implementation
+checkpoint.
+
+File structure
+
+docs/
+└── knowledge_base/
+    ├── 00_DOMAIN_MODEL.md
+    ├── 01_BUSINESS_RULES.md
+    ├── 02_PRODUCT_SPECIFICATION.md
+    ├── 03_ARCHITECTURE.md
+    ├── 04_DATABASE_SPECIFICATION.md
+    ├── 05_UI_UX_SPECIFICATION.md
+    ├── 06_RECONCILIATION_SPECIFICATION.md
+    ├── 07_DEVELOPMENT_ROADMAP.md
+    ├── 08_CHANGELOG.md
+    ├── 09_ERD_AND_MIGRATION_DESIGN.md
+    └── 10_IMPLEMENTATION_CONTRACT.md
+
+    └── phase_decisions/
+        ├── PHASE_1_DECISION_PACKAGE.md
+        ├── PHASE_1_5_DECISION_PACKAGE.md
+        ├── PHASE_2_DECISION_PACKAGE.md
+        ├── PHASE_3_DECISION_PACKAGE.md
+        └── PHASE_4_DECISION_PACKAGE.md
+
+### Phase Decision Package Integrity
+
+The Phase Decision Package MUST contain, at minimum:
+
+- Phase objective and scope
+- Explicit exclusions / out-of-scope items
+- Current codebase analysis
+- Relevant Knowledge Base references
+- Architecture and implementation approach
+- Database impact
+- Routes/controllers/services/models involved
+- Validation and authorization rules
+- UI/UX approach where applicable
+- Testing strategy
+- Security and tenant-isolation considerations
+- Financial/business invariants where applicable
+- Exact files expected to be created or modified
+- Risks and open decisions
+- Acceptance criteria
+- Implementation sequence
+- Explicit statement that implementation MUST NOT begin until external approval
+
+The implementation agent MUST NOT treat its own interpretation of an
+ambiguous requirement as an approved decision.
+
+Any unresolved ambiguity MUST be recorded under "Open Decisions" and
+submitted for external review.
+
+After external approval, the approved Decision Package becomes the
+authoritative implementation contract for that phase.
+
+The implementation agent MUST NOT expand the approved scope during
+implementation without first stopping and obtaining approval for a
+Decision Package amendment.
+
+If the implementation differs from the approved Decision Package for
+any reason, the difference MUST be explicitly reported and reviewed
+before the phase can be certified.
+
+# 37. Phase Documentation Lifecycle
+
+Every development phase MUST maintain a complete, version-controlled
+documentation trail.
+
+Each phase MUST have the following permanent documents:
+
+```text
+docs/knowledge_base/phase_decisions/
+
+PHASE_N_DECISION_PACKAGE.md
+PHASE_N_IMPLEMENTATION_REPORT.md
+PHASE_N_EXTERNAL_AUDIT_BUNDLE.md
