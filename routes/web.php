@@ -2,7 +2,11 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ObligationAllocationController;
+use App\Http\Controllers\PaymentObligationController;
+use App\Http\Controllers\RecurringPaymentTemplateController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
@@ -55,4 +59,30 @@ Route::middleware('auth')->group(function () {
     Route::post('/transactions/adjustment', [TransactionController::class, 'storeAdjustment'])->name('transactions.adjustment.store');
 
     Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
+
+    Route::get('/recurring-templates', [RecurringPaymentTemplateController::class, 'index'])->name('recurring-templates.index');
+    Route::get('/recurring-templates/create', [RecurringPaymentTemplateController::class, 'create'])->name('recurring-templates.create');
+    Route::post('/recurring-templates', [RecurringPaymentTemplateController::class, 'store'])->name('recurring-templates.store');
+    Route::get('/recurring-templates/{recurringPaymentTemplate}', [RecurringPaymentTemplateController::class, 'show'])->name('recurring-templates.show');
+    Route::get('/recurring-templates/{recurringPaymentTemplate}/edit', [RecurringPaymentTemplateController::class, 'edit'])->name('recurring-templates.edit');
+    Route::put('/recurring-templates/{recurringPaymentTemplate}', [RecurringPaymentTemplateController::class, 'update'])->name('recurring-templates.update');
+    Route::patch('/recurring-templates/{recurringPaymentTemplate}/cancel', [RecurringPaymentTemplateController::class, 'cancel'])->name('recurring-templates.cancel');
+
+    Route::get('/obligations', [PaymentObligationController::class, 'index'])->name('obligations.index');
+    Route::get('/obligations/create', [PaymentObligationController::class, 'create'])->name('obligations.create');
+    Route::post('/obligations', [PaymentObligationController::class, 'store'])->name('obligations.store');
+    Route::post('/obligations/generate', [PaymentObligationController::class, 'generate'])->name('obligations.generate');
+    Route::get('/obligations/{paymentObligation}', [PaymentObligationController::class, 'show'])->name('obligations.show');
+    Route::patch('/obligations/{paymentObligation}/skip', [PaymentObligationController::class, 'skip'])->name('obligations.skip');
+    Route::patch('/obligations/{paymentObligation}/cancel', [PaymentObligationController::class, 'cancel'])->name('obligations.cancel');
+
+    Route::get('/obligations/{paymentObligation}/allocations/create', [ObligationAllocationController::class, 'create'])->name('obligations.allocations.create');
+    Route::post('/obligations/{paymentObligation}/allocations', [ObligationAllocationController::class, 'store'])->name('obligations.allocations.store');
+    Route::delete('/obligations/{paymentObligation}/allocations/{obligationAllocation}', [ObligationAllocationController::class, 'destroy'])->name('obligations.allocations.destroy');
+
+    Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets.index');
+    Route::get('/budgets/create', [BudgetController::class, 'create'])->name('budgets.create');
+    Route::post('/budgets', [BudgetController::class, 'store'])->name('budgets.store');
+    Route::get('/budgets/{budget}/edit', [BudgetController::class, 'edit'])->name('budgets.edit');
+    Route::put('/budgets/{budget}', [BudgetController::class, 'update'])->name('budgets.update');
 });

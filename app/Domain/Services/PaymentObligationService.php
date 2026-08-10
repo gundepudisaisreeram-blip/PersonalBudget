@@ -2,6 +2,7 @@
 
 namespace App\Domain\Services;
 
+use App\Models\Account;
 use App\Models\Category;
 use App\Models\PaymentObligation;
 use App\Models\RecurringPaymentTemplate;
@@ -67,6 +68,10 @@ class PaymentObligationService
         ?int $plannedAccountId = null,
     ): PaymentObligation {
         $this->ownership->assertCategoryOwnership($category, $user->id);
+
+        if ($plannedAccountId !== null) {
+            $this->ownership->assertAccountOwnership(Account::findOrFail($plannedAccountId), $user->id);
+        }
 
         return PaymentObligation::query()->firstOrCreate(
             ['idempotency_key' => $idempotencyKey],

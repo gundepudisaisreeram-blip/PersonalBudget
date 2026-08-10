@@ -80,6 +80,44 @@ Yes — direct `user_id → users.id` foreign keys added to `ledger_entries`, `o
 
 Complete
 
+## 2026-08-10 — Phase 4 Decision Package Created
+
+### Date
+
+2026-08-10
+
+### Version
+
+N/A (new document; not a revision to an existing 00–09 specification)
+
+### Change
+
+Created `docs/knowledge_base/phase_decisions/PHASE_4_DECISION_PACKAGE.md`, a version-controlled record of the Phase 4 (Budgets, Recurring Payment Templates, Monthly Obligation Generation, Payment Obligations, Obligation Allocations) architectural decisions, per the Phase Decision Package governance process added to `10_IMPLEMENTATION_CONTRACT.md`.
+
+### Reason
+
+`10_IMPLEMENTATION_CONTRACT.md` now requires every development phase to have a corresponding version-controlled Decision Package. No such file existed for Phase 4 at the time Phase 4 code was implemented; this entry and the accompanying document formalize those already-made, already-implemented decisions into the required artifact, retrospectively rather than in advance.
+
+### Impact
+
+Documentation only. No `00`–`09` specification document was changed. No PHP, Blade, migration, or test file was changed while creating this entry or the accompanying Decision Package.
+
+### Files
+
+- docs/knowledge_base/phase_decisions/PHASE_4_DECISION_PACKAGE.md (created)
+
+### Approval
+
+Pending — the decisions recorded in the Decision Package were approved by the Project Owner prior to implementation, but the independent external adversarial review (ChatGPT/Gemini) that `10_IMPLEMENTATION_CONTRACT.md`'s new process describes as a prerequisite has not occurred. See the Decision Package's own section 25 (Governance Status) for the full explanation.
+
+### Migration Required
+
+No
+
+### Implementation Status
+
+Complete (the Phase 4 code this document describes was already implemented, tested, and passing before this document was written)
+
 ## Change Entry Template
 
 ### Date

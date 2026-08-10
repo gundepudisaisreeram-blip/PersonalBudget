@@ -22,6 +22,9 @@
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('transactions.*') ? 'active fw-bold' : '' }}" href="{{ url('/transactions') }}">Transactions</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('obligations.*', 'recurring-templates.*', 'budgets.*') ? 'active fw-bold' : '' }}" href="{{ url('/obligations') }}">Budget &amp; Obligations</a>
+                        </li>
                     </ul>
                     <span class="navbar-text text-light me-3">{{ auth()->user()->name }}</span>
                     <form method="POST" action="{{ route('logout') }}">

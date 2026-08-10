@@ -4,6 +4,7 @@ namespace App\Domain\Services;
 
 use App\Domain\Exceptions\OwnershipViolationException;
 use App\Models\Account;
+use App\Models\Budget;
 use App\Models\Category;
 use App\Models\ObligationAllocation;
 use App\Models\PaymentObligation;
@@ -62,6 +63,13 @@ class OwnershipGuard
     {
         if ($allocation->user_id !== $userId) {
             throw new OwnershipViolationException('Obligation allocation does not belong to the authenticated user.');
+        }
+    }
+
+    public function assertBudgetOwnership(Budget $budget, int $userId): void
+    {
+        if ($budget->user_id !== $userId) {
+            throw new OwnershipViolationException('Budget does not belong to the authenticated user.');
         }
     }
 }
