@@ -19,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo('/login');
-        $middleware->redirectUsersTo('/accounts');
+        $middleware->redirectUsersTo('/dashboard');
     })
     ->withSchedule(function (Schedule $schedule): void {
         $schedule->command(GenerateMonthlyObligations::class)->monthly();

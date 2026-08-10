@@ -14,6 +14,9 @@
                 <div class="d-flex align-items-center">
                     <ul class="navbar-nav me-3 flex-row gap-3">
                         <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('dashboard') ? 'active fw-bold' : '' }}" href="{{ url('/dashboard') }}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('accounts.*') ? 'active fw-bold' : '' }}" href="{{ url('/accounts') }}">Accounts</a>
                         </li>
                         <li class="nav-item">
