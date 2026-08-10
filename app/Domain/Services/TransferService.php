@@ -37,6 +37,14 @@ class TransferService
         $this->ownership->assertAccountOwnership($toAccount, $user->id);
         $this->ownership->assertCategoryOwnership($category, $user->id);
 
+        if (! $fromAccount->isActive()) {
+            throw new InvalidTransactionException('The source account is closed and cannot accept new transactions.');
+        }
+
+        if (! $toAccount->isActive()) {
+            throw new InvalidTransactionException('The destination account is closed and cannot accept new transactions.');
+        }
+
         if ($fromAccount->id === $toAccount->id) {
             throw new InvalidTransactionException('A transfer requires two distinct accounts.');
         }

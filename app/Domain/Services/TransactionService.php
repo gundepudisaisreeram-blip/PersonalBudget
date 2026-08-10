@@ -112,6 +112,10 @@ class TransactionService
         $this->ownership->assertAccountOwnership($account, $user->id);
         $this->ownership->assertCategoryOwnership($category, $user->id);
 
+        if (! $account->isActive()) {
+            throw new InvalidTransactionException('The account is closed and cannot accept new transactions.');
+        }
+
         if (! Money::isPositive($amount)) {
             throw new InvalidTransactionException('Transaction amount must be greater than zero.');
         }

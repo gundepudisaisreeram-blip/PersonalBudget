@@ -32,6 +32,10 @@ class RefundService
         $this->ownership->assertTransactionOwnership($parent, $user->id);
         $this->ownership->assertAccountOwnership($account, $user->id);
 
+        if (! $account->isActive()) {
+            throw new InvalidTransactionException('The destination account is closed and cannot accept new transactions.');
+        }
+
         if ($parent->transaction_type !== 'EXPENSE') {
             throw new InvalidTransactionException('Refund parent transaction must be an EXPENSE.');
         }

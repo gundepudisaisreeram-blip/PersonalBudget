@@ -3,6 +3,7 @@
 namespace App\Domain\Services;
 
 use App\Domain\Exceptions\InvalidTransactionException;
+use App\Models\Account;
 use App\Models\LedgerEntry;
 use App\Models\Transaction;
 use App\Models\User;
@@ -28,15 +29,27 @@ class ReversalService
     ): Transaction {
         $this->ownership->assertTransactionOwnership($parent, $user->id);
 
-        return DB::transaction(function () use (
-            $user, $parent, $transactionDate, $description, $reference, $notes,
-        ) {
-            $parentEntries = $parent->ledgerEntries()->get();
+        $parentEntries = $parent->ledgerEntries()->get();
 
-            if ($parentEntries->isEmpty()) {
-                throw new InvalidTransactionException('Parent transaction has no ledger entries to reverse.');
+        if ($parentEntries->isEmpty()) {
+            throw new InvalidTransactionException('Parent transaction has no ledger entries to reverse.');
+        }
+
+        $inheritedAccounts = Account::query()
+            ->whereIn('id', $parentEntries->pluck('account_id')->unique())
+            ->get();
+
+        foreach ($inheritedAccounts as $inheritedAccount) {
+            if (! $inheritedAccount->isActive()) {
+                throw new InvalidTransactionException(
+                    'A reversal cannot be created because one of the parent transaction\'s accounts is closed.'
+                );
             }
+        }
 
+        return DB::transaction(function () use (
+            $user, $parent, $parentEntries, $transactionDate, $description, $reference, $notes,
+        ) {
             $transaction = Transaction::create([
                 'user_id' => $user->id,
                 'transaction_date' => $transactionDate,

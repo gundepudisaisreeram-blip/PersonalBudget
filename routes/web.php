@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -31,4 +32,27 @@ Route::middleware('auth')->group(function () {
     Route::get('/categories/{category}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
     Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::patch('/categories/{category}/deactivate', [CategoryController::class, 'deactivate'])->name('categories.deactivate');
+
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
+
+    Route::get('/transactions/expense', [TransactionController::class, 'createExpense'])->name('transactions.expense.create');
+    Route::post('/transactions/expense', [TransactionController::class, 'storeExpense'])->name('transactions.expense.store');
+
+    Route::get('/transactions/income', [TransactionController::class, 'createIncome'])->name('transactions.income.create');
+    Route::post('/transactions/income', [TransactionController::class, 'storeIncome'])->name('transactions.income.store');
+
+    Route::get('/transactions/transfer', [TransactionController::class, 'createTransfer'])->name('transactions.transfer.create');
+    Route::post('/transactions/transfer', [TransactionController::class, 'storeTransfer'])->name('transactions.transfer.store');
+
+    Route::get('/transactions/refund', [TransactionController::class, 'createRefund'])->name('transactions.refund.create');
+    Route::post('/transactions/refund', [TransactionController::class, 'storeRefund'])->name('transactions.refund.store');
+
+    Route::get('/transactions/reversal', [TransactionController::class, 'createReversal'])->name('transactions.reversal.create');
+    Route::post('/transactions/reversal', [TransactionController::class, 'storeReversal'])->name('transactions.reversal.store');
+
+    Route::get('/transactions/adjustment', [TransactionController::class, 'createAdjustment'])->name('transactions.adjustment.create');
+    Route::post('/transactions/adjustment', [TransactionController::class, 'storeAdjustment'])->name('transactions.adjustment.store');
+
+    Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');
 });
