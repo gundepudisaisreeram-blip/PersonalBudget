@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ObligationAllocationController;
 use App\Http\Controllers\PaymentObligationController;
 use App\Http\Controllers\RecurringPaymentTemplateController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
@@ -88,4 +89,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/budgets', [BudgetController::class, 'store'])->name('budgets.store');
     Route::get('/budgets/{budget}/edit', [BudgetController::class, 'edit'])->name('budgets.edit');
     Route::put('/budgets/{budget}', [BudgetController::class, 'update'])->name('budgets.update');
+
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/cash-flow', [ReportController::class, 'cashFlow'])->name('reports.cash-flow');
+    Route::get('/reports/category-spending', [ReportController::class, 'categorySpending'])->name('reports.category-spending');
+    Route::get('/reports/budget', [ReportController::class, 'budget'])->name('reports.budget');
+    Route::get('/reports/obligations', [ReportController::class, 'obligations'])->name('reports.obligations');
+    Route::get('/reports/trends', [ReportController::class, 'trends'])->name('reports.trends');
+    Route::get('/reports/monthly-summary', [ReportController::class, 'monthlySummary'])->name('reports.monthly-summary');
+    Route::get('/reports/month-review', [ReportController::class, 'monthReview'])->name('reports.month-review');
 });
