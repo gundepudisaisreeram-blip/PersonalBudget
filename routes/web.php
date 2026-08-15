@@ -9,6 +9,7 @@ use App\Http\Controllers\ObligationAllocationController;
 use App\Http\Controllers\PaymentObligationController;
 use App\Http\Controllers\RecurringPaymentTemplateController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\StatementImportController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
@@ -98,4 +99,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/trends', [ReportController::class, 'trends'])->name('reports.trends');
     Route::get('/reports/monthly-summary', [ReportController::class, 'monthlySummary'])->name('reports.monthly-summary');
     Route::get('/reports/month-review', [ReportController::class, 'monthReview'])->name('reports.month-review');
+
+    Route::get('/imports', [StatementImportController::class, 'index'])->name('imports.index');
+    Route::get('/imports/create', [StatementImportController::class, 'create'])->name('imports.create');
+    Route::post('/imports', [StatementImportController::class, 'store'])->name('imports.store');
+    Route::get('/imports/{statementImport}', [StatementImportController::class, 'show'])->name('imports.show');
+    Route::post('/imports/{statementImport}/select-profile', [StatementImportController::class, 'selectProfile'])->name('imports.select-profile');
+    Route::post('/imports/{statementImport}/confirm', [StatementImportController::class, 'confirm'])->name('imports.confirm');
+    Route::get('/imports/{statementImport}/download', [StatementImportController::class, 'download'])->name('imports.download');
 });

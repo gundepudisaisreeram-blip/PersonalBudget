@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\ObligationAllocation;
 use App\Models\PaymentObligation;
 use App\Models\RecurringPaymentTemplate;
+use App\Models\StatementImport;
 use App\Models\Transaction;
 
 /**
@@ -70,6 +71,13 @@ class OwnershipGuard
     {
         if ($budget->user_id !== $userId) {
             throw new OwnershipViolationException('Budget does not belong to the authenticated user.');
+        }
+    }
+
+    public function assertStatementImportOwnership(StatementImport $statementImport, int $userId): void
+    {
+        if ($statementImport->user_id !== $userId) {
+            throw new OwnershipViolationException('Statement import does not belong to the authenticated user.');
         }
     }
 }

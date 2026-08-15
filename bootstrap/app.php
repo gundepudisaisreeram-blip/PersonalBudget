@@ -5,6 +5,7 @@ use App\Domain\Exceptions\AllocationException;
 use App\Domain\Exceptions\BudgetException;
 use App\Domain\Exceptions\InvalidTransactionException;
 use App\Domain\Exceptions\OwnershipViolationException;
+use App\Domain\Exceptions\StatementImportException;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -62,6 +63,15 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (BudgetException $e, Request $request) {
             if (! $request->expectsJson()) {
                 return back()->withInput()->withErrors(['budget' => $e->getMessage()]);
+            }
+        });
+
+        // A statement import domain rule violation (exact file already
+        // imported for this account): rejected before any write, same
+        // redirect-back contract.
+        $exceptions->render(function (StatementImportException $e, Request $request) {
+            if (! $request->expectsJson()) {
+                return back()->withInput()->withErrors(['import' => $e->getMessage()]);
             }
         });
     })->create();
